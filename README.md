@@ -30,7 +30,6 @@ flowchart TD
     style K fill:#9f9,stroke:#333,stroke-width:3px
     style I fill:#bbf,stroke:#333
 ```
-
 🛠️ Technical Specifications
 Core Technologies
 
@@ -43,35 +42,27 @@ Precision: float16 (optimized memory usage)
 
 
 The Moondream2 Pivot
-Initially, the project explored Moondream2 (a lightweight Vision-Language Model). However, due to repeated compatibility issues with the Transformers library (especially rope_scaling and pad_token_id errors in custom modeling files), the architecture was pivoted to CLIP.
-Advantages of Switching to CLIP
+Initially, the project explored Moondream2, a lightweight Vision-Language Model (VLM). However, due to repeated compatibility issues with the Transformers library — particularly rope_scaling and pad_token_id errors in custom modeling files — the architecture was pivoted to CLIP.
 
 
-
-
-
-
-
-AspectMoondream2CLIP (Chosen)WinnerStabilityFrequent config conflictsNative Transformers supportCLIPSpeedAutoregressive inferencePure embedding + similarityCLIPMemory UsageHigherVery efficient (float16)CLIPRetrieval TaskGoodExcellent (designed for it)CLIP
-
-🧪 Inference Pipeline
-mermaidCopyflowchart LR
     subgraph Preprocessing
         A[Video File] --> B[Decode with OpenCV]
         B --> C[Sample Frames @ 1Hz]
         C --> D[Resize 224×224]
-        D --> E[Normalize\nImageNet Stats]
+        D --> E[Normalize<br/>ImageNet Stats]
     end
 
     subgraph Encoding
         E --> F[CLIP Vision Encoder]
         G[Text Query] --> H[CLIP Text Encoder]
-        F --> I[Image Embeddings\n512-dim]
-        H --> J[Text Embedding\n512-dim]
+
+        F --> I[Image Embeddings<br/>512-dim]
+        H --> J[Text Embedding<br/>512-dim]
     end
 
     subgraph Matching
-        I & J --> K[Cosine Similarity]
+        I --> K[Cosine Similarity]
+        J --> K
         K --> L[Softmax over Time]
         L --> M[Max Score + Timestamp]
     end
@@ -80,15 +71,10 @@ mermaidCopyflowchart LR
     classDef enc fill:#f3e5f5,stroke:#4a148c
     classDef match fill:#e8f5e9,stroke:#1b5e20
 
-    class Preprocessing proc
-    class Encoding enc
-    class Matching match
-
+    class A,B,C,D,E proc
+    class F,G,H,I,J enc
+    class K,L,M match
     
-Mathematical Logic:
-$$\text{Score}[i] = \text{CosineSimilarity}\big(\text{Embedding}(Q), \text{Embedding}(F[i])\big)$$
-$$\text{Best Match} = \arg\max_i \text{Score}[i]$$
-Confidence is obtained by applying Softmax across all frame scores.
 
 🚀 Deployment
 The system is deployed using Gradio, providing:
